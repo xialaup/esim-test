@@ -11,8 +11,8 @@ android {
         applicationId = "app.septs.euiccprobe"
         minSdk = 21
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.0"
+        versionCode = 9
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

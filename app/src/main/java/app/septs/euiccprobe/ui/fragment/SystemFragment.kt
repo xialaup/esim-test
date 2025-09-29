@@ -1,7 +1,9 @@
 package app.septs.euiccprobe.ui.fragment
 
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +12,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.septs.euiccprobe.R
+import app.septs.euiccprobe.databinding.FragmentSystemBinding
 import app.septs.euiccprobe.tool.SystemApps
 import app.septs.euiccprobe.tool.SystemProperties
 import app.septs.euiccprobe.tool.SystemService
-import app.septs.euiccprobe.databinding.FragmentSystemBinding
 import app.septs.euiccprobe.ui.adapter.SystemFeaturesAdapter
 import app.septs.euiccprobe.ui.adapter.SystemPropertiesAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -21,11 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SystemFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SystemFragment : Fragment() {
     private var viewBinding: FragmentSystemBinding? = null
     private var systemFeaturesAdapter: SystemFeaturesAdapter? = null
@@ -103,8 +100,14 @@ class SystemFragment : Fragment() {
         val key = systemLPAs.keys.first()
         viewBinding?.systemLpasLiv?.headlineText = key
         viewBinding?.systemLpasLiv?.supportingText = systemLPAs[key]
-        viewBinding?.systemLpasLiv?.leadingIconDrawable =
-            systemLPAs[key]?.let { context?.packageManager?.getApplicationIcon(it) }
+        try {
+            viewBinding?.systemLpasLiv?.leadingIconDrawable =
+                systemLPAs[key]?.let { context?.packageManager?.getApplicationIcon(it) }
+        } catch (_: PackageManager.NameNotFoundException) {
+            Log.i("SystemLPAs", "No application icons.")
+        } catch (e: Exception) {
+            Log.w("SystemLPAS", e.stackTrace.toString())
+        }
         systemFeaturesAdapter?.notifyDataSetChanged()
         systemPropertiesAdapter?.notifyDataSetChanged()
     }

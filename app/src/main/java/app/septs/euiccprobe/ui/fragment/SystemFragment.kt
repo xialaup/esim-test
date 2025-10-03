@@ -20,6 +20,7 @@ import app.septs.euiccprobe.ui.adapter.SystemFeaturesAdapter
 import app.septs.euiccprobe.ui.adapter.SystemPropertiesAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -83,8 +84,8 @@ class SystemFragment : Fragment() {
 
 
         lifecycleScope.launch {
-            loadData()
-            updateView()
+            async { loadData() }.await()
+            async { updateView() }.await()
         }
     }
 
@@ -97,6 +98,12 @@ class SystemFragment : Fragment() {
                 )
             }
         }
+        systemFeaturesAdapter?.notifyDataSetChanged()
+        systemPropertiesAdapter?.notifyDataSetChanged()
+        if (systemLPAs.isEmpty()) {
+            Log.i("SystemLPAs", "No SystemLPAs data.")
+            return
+        }
         val key = systemLPAs.keys.first()
         viewBinding?.systemLpasLiv?.headlineText = key
         viewBinding?.systemLpasLiv?.supportingText = systemLPAs[key]
@@ -108,8 +115,6 @@ class SystemFragment : Fragment() {
         } catch (e: Exception) {
             Log.w("SystemLPAS", e.stackTrace.toString())
         }
-        systemFeaturesAdapter?.notifyDataSetChanged()
-        systemPropertiesAdapter?.notifyDataSetChanged()
     }
 
     private suspend fun loadData() = withContext(Dispatchers.IO) {
